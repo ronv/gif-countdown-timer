@@ -42,5 +42,8 @@ Countdown Timer for your email campaigns.
 where dt is date & time
 
 # Example
-
-<code><img src="YOUR HOST/GIFcountdownTimer/img.gif?dt=2015-03-07/16:22:20" alt="GIFcountdownTimer" border="0" style="display:block;"></code>
+<pre>
+<code>
+<img src="YOUR HOST/GIFcountdownTimer/img.gif?dt=2015-03-07/16:22:20" alt="GIFcountdownTimer" border="0" style="display:block;">
+</code>
+</pre>
