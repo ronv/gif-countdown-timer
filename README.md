@@ -1,6 +1,8 @@
 # GIF Countdown Timer
 Countdown Timer for your email campaigns.
 
+Fixed the curly braces issues caused by newer php versions.
+
 # Usage
 
 1. Set timezone
