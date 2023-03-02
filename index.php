@@ -1,6 +1,6 @@
 <?php
 
-date_default_timezone_set('Europe/Riga'); // change this to your local country time zone
+date_default_timezone_set(get_timezone()); // change this to your local country time zone
 include 'GIFEncoder.class.php';
 
 if(empty($_GET["dt"])){
@@ -109,3 +109,30 @@ header( 'Cache-Control: no-store, no-cache, must-revalidate' );
 header( 'Cache-Control: post-check=0, pre-check=0', false );
 header( 'Pragma: no-cache' );
 $gif->display();
+
+
+
+
+function get_timezone(){ 
+    $geolocation = unserialize( file_get_contents( "http://www.geoplugin.net/php.gp?ip=".getUserIP() ) );
+    return ($geolocation['geoplugin_timezone']);
+}
+
+//https://stackoverflow.com/a/13646735/4896819
+function getUserIP( ) {
+    if ( isset( $_SERVER[ "HTTP_CF_CONNECTING_IP" ] ) ) {
+        $_SERVER[ 'REMOTE_ADDR' ]    = $_SERVER[ "HTTP_CF_CONNECTING_IP" ];
+        $_SERVER[ 'HTTP_CLIENT_IP' ] = $_SERVER[ "HTTP_CF_CONNECTING_IP" ];
+    }
+    $client  = @$_SERVER[ 'HTTP_CLIENT_IP' ];
+    $forward = @$_SERVER[ 'HTTP_X_FORWARDED_FOR' ];
+    $remote  = $_SERVER[ 'REMOTE_ADDR' ];
+    if ( filter_var( $client, FILTER_VALIDATE_IP ) ) {
+        $ip = $client;
+    } elseif ( filter_var( $forward, FILTER_VALIDATE_IP ) ) {
+        $ip = $forward;
+    } else {
+        $ip = $remote;
+    }
+    return $ip;
+}
