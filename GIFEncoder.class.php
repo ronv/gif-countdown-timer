@@ -115,8 +115,8 @@ class AnimatedGif {
             if (substr($this->buffer [$i], 0, 6) != "GIF87a" && substr($this->buffer [$i], 0, 6) != "GIF89a") {
                 throw new Exception('Image at position ' . $i. ' is not a gif');
             }
-            for ($j = ( 13 + 3 * ( 2 << ( ord($this->buffer [$i] { 10 }) & 0x07 ) ) ), $k = TRUE; $k; $j++) {
-                switch ($this->buffer [$i] { $j }) {
+            for ($j = ( 13 + 3 * ( 2 << ( ord($this->buffer [$i] [ 10 ]) & 0x07 ) ) ), $k = TRUE; $k; $j++) {
+                switch ($this->buffer [$i] [ $j ]) {
                     case "!":
                         if (( substr($this->buffer [$i], ( $j + 3), 8) ) == "NETSCAPE") {
                             throw new Exception('You cannot make an animation from an animated gif.');
@@ -136,8 +136,8 @@ class AnimatedGif {
     private function addHeader() {
         $cmap = 0;
         $this->image = 'GIF89a';
-        if (ord($this->buffer [0] { 10 }) & 0x80) {
-            $cmap = 3 * ( 2 << ( ord($this->buffer [0] { 10 }) & 0x07 ) );
+        if (ord($this->buffer [0] [ 10 ]) & 0x80) {
+            $cmap = 3 * ( 2 << ( ord($this->buffer [0] [ 10 ]) & 0x07 ) );
             $this->image .= substr($this->buffer [0], 6, 7);
             $this->image .= substr($this->buffer [0], 13, $cmap);
             $this->image .= "!\377\13NETSCAPE2.0\3\1" . $this->word($this->number_of_loops) . "\0";
@@ -150,26 +150,26 @@ class AnimatedGif {
      * @param int $delay The delay associated with the frame
      */
     private function addFrame($frame, $delay) {
-        $Locals_str = 13 + 3 * ( 2 << ( ord($this->buffer [$frame] { 10 }) & 0x07 ) );
+        $Locals_str = 13 + 3 * ( 2 << ( ord($this->buffer [$frame] [ 10 ]) & 0x07 ) );
  
         $Locals_end = strlen($this->buffer [$frame]) - $Locals_str - 1;
         $Locals_tmp = substr($this->buffer [$frame], $Locals_str, $Locals_end);
  
-        $Global_len = 2 << ( ord($this->buffer [0] { 10 }) & 0x07 );
-        $Locals_len = 2 << ( ord($this->buffer [$frame] { 10 }) & 0x07 );
+        $Global_len = 2 << ( ord($this->buffer [0] [ 10 ]) & 0x07 );
+        $Locals_len = 2 << ( ord($this->buffer [$frame] [ 10 ]) & 0x07 );
  
-        $Global_rgb = substr($this->buffer [0], 13, 3 * ( 2 << ( ord($this->buffer [0] { 10 }) & 0x07 ) ));
-        $Locals_rgb = substr($this->buffer [$frame], 13, 3 * ( 2 << ( ord($this->buffer [$frame] { 10 }) & 0x07 ) ));
+        $Global_rgb = substr($this->buffer [0], 13, 3 * ( 2 << ( ord($this->buffer [0] [ 10 ]) & 0x07 ) ));
+        $Locals_rgb = substr($this->buffer [$frame], 13, 3 * ( 2 << ( ord($this->buffer [$frame] [ 10 ]) & 0x07 ) ));
  
         $Locals_ext = "!\xF9\x04" . chr(( $this->DIS << 2 ) + 0) .
                 chr(( $delay >> 0 ) & 0xFF) . chr(( $delay >> 8 ) & 0xFF) . "\x0\x0";
  
-        if ($this->transparent_colour > -1 && ord($this->buffer [$frame] { 10 }) & 0x80) {
-            for ($j = 0; $j < ( 2 << ( ord($this->buffer [$frame] { 10 }) & 0x07 ) ); $j++) {
+        if ($this->transparent_colour > -1 && ord($this->buffer [$frame] [ 10 ]) & 0x80) {
+            for ($j = 0; $j < ( 2 << ( ord($this->buffer [$frame] [ 10 ]) & 0x07 ) ); $j++) {
                 if (
-                        ord($Locals_rgb { 3 * $j + 0 }) == ( ( $this->transparent_colour >> 16 ) & 0xFF ) &&
-                        ord($Locals_rgb { 3 * $j + 1 }) == ( ( $this->transparent_colour >> 8 ) & 0xFF ) &&
-                        ord($Locals_rgb { 3 * $j + 2 }) == ( ( $this->transparent_colour >> 0 ) & 0xFF )
+                        ord($Locals_rgb [ 3 * $j + 0 ]) == ( ( $this->transparent_colour >> 16 ) & 0xFF ) &&
+                        ord($Locals_rgb [ 3 * $j + 1 ]) == ( ( $this->transparent_colour >> 8 ) & 0xFF ) &&
+                        ord($Locals_rgb [ 3 * $j + 2 ]) == ( ( $this->transparent_colour >> 0 ) & 0xFF )
                 ) {
                     $Locals_ext = "!\xF9\x04" . chr(( $this->DIS << 2 ) + 1) .
                             chr(( $delay >> 0 ) & 0xFF) . chr(( $delay >> 8 ) & 0xFF) . chr($j) . "\x0";
@@ -177,7 +177,7 @@ class AnimatedGif {
                 }
             }
         }
-        switch ($Locals_tmp { 0 }) {
+        switch ($Locals_tmp [ 0 ]) {
             case "!":
                 $Locals_img = substr($Locals_tmp, 8, 10);
                 $Locals_tmp = substr($Locals_tmp, 18, strlen($Locals_tmp) - 18);
@@ -187,24 +187,24 @@ class AnimatedGif {
                 $Locals_tmp = substr($Locals_tmp, 10, strlen($Locals_tmp) - 10);
                 break;
         }
-        if (ord($this->buffer [$frame] { 10 }) & 0x80 && $this->first_frame === FALSE) {
+        if (ord($this->buffer [$frame] [ 10 ]) & 0x80 && $this->first_frame === FALSE) {
             if ($Global_len == $Locals_len) {
                 if ($this->blockCompare($Global_rgb, $Locals_rgb, $Global_len)) {
                     $this->image .= ( $Locals_ext . $Locals_img . $Locals_tmp );
                 } else {
-                    $byte = ord($Locals_img { 9 });
+                    $byte = ord($Locals_img [ 9 ]);
                     $byte |= 0x80;
                     $byte &= 0xF8;
-                    $byte |= ( ord($this->buffer [0] { 10 }) & 0x07 );
-                    $Locals_img { 9 } = chr($byte);
+                    $byte |= ( ord($this->buffer [0] [ 10 ]) & 0x07 );
+                    $Locals_img [ 9 ] = chr($byte);
                     $this->image .= ( $Locals_ext . $Locals_img . $Locals_rgb . $Locals_tmp );
                 }
             } else {
-                $byte = ord($Locals_img { 9 });
+                $byte = ord($Locals_img [ 9 ]);
                 $byte |= 0x80;
                 $byte &= 0xF8;
-                $byte |= ( ord($this->buffer [$frame] { 10 }) & 0x07 );
-                $Locals_img { 9 } = chr($byte);
+                $byte |= ( ord($this->buffer [$frame] [ 10 ]) & 0x07 );
+                $Locals_img [ 9 ] = chr($byte);
                 $this->image .= ( $Locals_ext . $Locals_img . $Locals_rgb . $Locals_tmp );
             }
         } else {
@@ -230,9 +230,9 @@ class AnimatedGif {
     private function blockCompare($GlobalBlock, $LocalBlock, $Len) {
         for ($i = 0; $i < $Len; $i++) {
             if (
-                    $GlobalBlock { 3 * $i + 0 } != $LocalBlock { 3 * $i + 0 } ||
-                    $GlobalBlock { 3 * $i + 1 } != $LocalBlock { 3 * $i + 1 } ||
-                    $GlobalBlock { 3 * $i + 2 } != $LocalBlock { 3 * $i + 2 }
+                    $GlobalBlock [ 3 * $i + 0 ] != $LocalBlock [ 3 * $i + 0 ] ||
+                    $GlobalBlock [ 3 * $i + 1 ] != $LocalBlock [ 3 * $i + 1 ] ||
+                    $GlobalBlock [ 3 * $i + 2 ] != $LocalBlock [ 3 * $i + 2 ]
             ) {
                 return ( 0 );
             }
